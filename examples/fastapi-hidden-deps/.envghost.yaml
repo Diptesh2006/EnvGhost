@@ -1,0 +1,14 @@
+version: 1
+project: {name: fastapi-hidden-deps, path: .}
+runtime:
+  image: python:3.12-slim
+  workdir: /app
+  command: python main.py
+  environment: {DATABASE_URL: sqlite:///tmp.db, APP_MODE: demo}
+verification: {startup_timeout: 10s, command_timeout: 5s}
+experiments:
+  max_parallel: 2
+  environment:
+    - {name: DATABASE_URL, action: unset}
+    - {name: APP_MODE, action: mutate, value: production}
+output: {directory: .envghost/reports, formats: [json, html]}

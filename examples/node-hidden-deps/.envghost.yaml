@@ -1,0 +1,12 @@
+version: 1
+project: {name: node-hidden-deps, path: .}
+runtime:
+  image: node:22-alpine
+  workdir: /app
+  command: node main.js
+  environment: {REQUIRED_TOKEN: disposable-demo-token}
+verification: {startup_timeout: 10s, command_timeout: 5s}
+experiments:
+  max_parallel: 2
+  environment: [{name: REQUIRED_TOKEN, action: unset}]
+output: {directory: .envghost/reports, formats: [json, html]}
