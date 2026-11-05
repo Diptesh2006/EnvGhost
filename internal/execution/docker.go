@@ -20,6 +20,12 @@ func DockerAvailable() error {
 }
 func Run(ctx context.Context, cfg model.Config, env map[string]string, remove string, removeFile string) model.Execution {
 	start := time.Now()
+	timeout, err := time.ParseDuration(cfg.Verification.CommandTimeoutText)
+	if err != nil || timeout <= 0 {
+		timeout = 15 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
 	args := []string{"run", "--rm", "--network", "none", "--memory", "512m", "--cpus", "1", "--pids-limit", "128", "-w", cfg.Runtime.Workdir}
 	project, _ := filepath.Abs(cfg.Project.Path)
 	args = append(args, "-v", project+":"+cfg.Runtime.Workdir+":ro")
@@ -42,7 +48,7 @@ func Run(ctx context.Context, cfg model.Config, env map[string]string, remove st
 	cmd.Stderr = &b
 	e := cmd.Run()
 	ex := model.Execution{Passed: e == nil, Duration: time.Since(start), Logs: b.String()}
-	if ctx.Err() != nil {
+	if ctx.Err() == context.DeadlineExceeded {
 		ex.TimedOut = true
 	}
 	if e != nil {
