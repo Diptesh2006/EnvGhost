@@ -12,7 +12,7 @@ type Candidate struct{ Name, Source string }
 var patterns = []struct {
 	ext string
 	re  *regexp.Regexp
-}{{".py", regexp.MustCompile(`(?:os\.getenv|os\.environ(?:\.get|\[))\s*[('\\"]([A-Z][A-Z0-9_]+)`)}, {".js", regexp.MustCompile(`process\.env\.([A-Z][A-Z0-9_]*)`)}}
+}{{".py", regexp.MustCompile(`(?:os\.getenv\s*\(\s*["']|os\.environ(?:\.get\s*\(\s*["']|\s*\[\s*["']))([A-Z][A-Z0-9_]*)`)}, {".js", regexp.MustCompile(`process\.env\.([A-Z][A-Z0-9_]*)`)}}
 
 func Scan(root string) []Candidate {
 	m := map[string]string{}
